@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement
 import dev.gaphunter.corspolicycompanion.detect.JavaCorsFinder
 import dev.gaphunter.corspolicycompanion.detect.KotlinCorsFinder
 import dev.gaphunter.corspolicycompanion.model.CorsHit
+import dev.gaphunter.corspolicycompanion.review.ReviewPrompt
 
 /**
  * Warning icon on any `@CrossOrigin(origins = "*", allowCredentials =
@@ -33,6 +34,10 @@ class CorsPolicyLineMarkerProvider : LineMarkerProviderDescriptor(), DumbAware {
         for (element in elements) {
             val hit = leafByHit[element] ?: continue
             result.add(buildMarker(element, hit))
+
+            val path = file.virtualFile?.path ?: continue
+            val lineNumber = file.viewProvider.document?.getLineNumber(element.textRange.startOffset) ?: -1
+            ReviewPrompt.recordHit(file.project, "$path:$lineNumber")
         }
     }
 

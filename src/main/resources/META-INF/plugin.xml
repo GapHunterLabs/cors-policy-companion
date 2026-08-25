@@ -34,5 +34,6 @@
             implementationClass="dev.gaphunter.corspolicycompanion.gutter.CorsPolicyLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="kotlin"
             implementationClass="dev.gaphunter.corspolicycompanion.gutter.CorsPolicyLineMarkerProvider"/>
+        <notificationGroup id="CORS Policy Companion" displayType="BALLOON"/>
     </extensions>
 </idea-plugin>
