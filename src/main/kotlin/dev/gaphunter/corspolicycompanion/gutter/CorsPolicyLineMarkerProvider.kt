@@ -54,7 +54,7 @@ class CorsPolicyLineMarkerProvider : LineMarkerProviderDescriptor(), DumbAware {
         )
     }
 
-    /** Leaf-anchored, never a composite node (`SDK_GOTCHAS.md` §20) -- the annotation element itself is composite, so descend to its own first real leaf token. */
+    /** Leaf-anchored, never a composite node -- the annotation element itself is composite, so descend to its own first real leaf token. */
     private fun leafOf(element: PsiElement): PsiElement {
         var current = element
         while (current.firstChild != null) current = current.firstChild
