@@ -5,15 +5,20 @@ import com.intellij.codeInsight.daemon.LineMarkerProviderDescriptor
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.project.DumbAware
 import com.intellij.psi.PsiElement
+import dev.gaphunter.corspolicycompanion.detect.JavaCorsConfigFinder
 import dev.gaphunter.corspolicycompanion.detect.JavaCorsFinder
+import dev.gaphunter.corspolicycompanion.detect.KotlinCorsConfigFinder
 import dev.gaphunter.corspolicycompanion.detect.KotlinCorsFinder
 import dev.gaphunter.corspolicycompanion.model.CorsHit
 import dev.gaphunter.corspolicycompanion.review.ReviewPrompt
 
 /**
  * Warning icon on any `@CrossOrigin(origins = "*", allowCredentials =
- * "true")` annotation -- always a real misconfiguration, since browsers
- * reject this exact combination per the CORS spec itself.
+ * "true")` annotation, or the equivalent global
+ * `registry.addMapping(...).allowedOrigins("*").allowCredentials(true)`
+ * `WebMvcConfigurer` registration -- always a real misconfiguration,
+ * since browsers reject this exact combination per the CORS spec
+ * itself, regardless of which Spring API produced it.
  */
 class CorsPolicyLineMarkerProvider : LineMarkerProviderDescriptor(), DumbAware {
 
@@ -24,8 +29,8 @@ class CorsPolicyLineMarkerProvider : LineMarkerProviderDescriptor(), DumbAware {
     override fun collectSlowLineMarkers(elements: MutableList<out PsiElement>, result: MutableCollection<in LineMarkerInfo<*>>) {
         val file = elements.firstOrNull()?.containingFile ?: return
         val hits = when (file.language.id) {
-            "JAVA" -> JavaCorsFinder.findAll(file)
-            "kotlin" -> KotlinCorsFinder.findAll(file)
+            "JAVA" -> JavaCorsFinder.findAll(file) + JavaCorsConfigFinder.findAll(file)
+            "kotlin" -> KotlinCorsFinder.findAll(file) + KotlinCorsConfigFinder.findAll(file)
             else -> emptyList()
         }
         if (hits.isEmpty()) return
@@ -42,7 +47,7 @@ class CorsPolicyLineMarkerProvider : LineMarkerProviderDescriptor(), DumbAware {
     }
 
     private fun buildMarker(leaf: PsiElement, hit: CorsHit): LineMarkerInfo<PsiElement> {
-        val tooltip = "@CrossOrigin(origins = \"*\", allowCredentials = \"true\") is invalid per the CORS spec -- browsers reject a wildcard origin combined with credentials, so requests silently fail"
+        val tooltip = "This CORS configuration is invalid per the CORS spec -- browsers reject a wildcard origin combined with credentials, so requests silently fail"
         return LineMarkerInfo(
             leaf,
             leaf.textRange,
