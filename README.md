@@ -1,11 +1,17 @@
 # CORS Policy Companion
 
-Warning icon on any Java/Kotlin Spring `@CrossOrigin(origins = "*",
-allowCredentials = "true")` annotation (class- or method-level) — this
-exact combination is forbidden by the CORS spec itself: browsers reject
-a wildcard origin combined with credentials, so requests silently fail
-(or, worse, the intent behind the annotation is misunderstood
-entirely).
+Warning icon on any Java/Kotlin Spring CORS configuration that combines
+a wildcard origin with credentials — this exact combination is
+forbidden by the CORS spec itself: browsers reject a wildcard origin
+combined with credentials, so requests silently fail (or, worse, the
+intent behind the configuration is misunderstood entirely). Catches
+both forms Spring offers for the same footgun:
+
+- The declarative `@CrossOrigin(origins = "*", allowCredentials =
+  "true")` annotation (class- or method-level).
+- The programmatic `WebMvcConfigurer` registration —
+  `registry.addMapping(...).allowedOrigins("*").allowCredentials(true)`
+  — regardless of the order the fluent calls appear in.
 
 ## Why it exists
 
@@ -26,11 +32,14 @@ hard to diagnose after the fact.
   by design — the CORS spec itself forbids the combination, so there's
   no legitimate reason it would ever be intentional.
 
-## v0.1 scope — stated honestly, not exhaustively
+## Scope — stated honestly, not exhaustively
 
-Only covers the declarative `@CrossOrigin` annotation, not a
-programmatic `CorsConfigurationSource`/`CorsRegistry` setup built
-across multiple statements.
+Covers `@CrossOrigin` and the single-statement fluent
+`registry.addMapping(...)` chain. Does not cover a
+`CorsConfigurationSource`/`UrlBasedCorsConfigurationSource` setup where
+the wildcard origin and the credentials flag are set on separate
+statements against a `CorsConfiguration` object built up over multiple
+lines.
 
 ## Usage
 

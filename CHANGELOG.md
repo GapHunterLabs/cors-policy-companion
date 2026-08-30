@@ -4,6 +4,18 @@
 
 ## [Unreleased]
 
+## [0.2.0]
+
+### Added
+
+- New detector: flags the programmatic `WebMvcConfigurer` CORS
+  registration —
+  `registry.addMapping(...).allowedOrigins("*").allowCredentials(true)`
+  — the same spec-invalid wildcard-origin-plus-credentials combination
+  as `@CrossOrigin`, just expressed as a fluent builder chain instead
+  of an annotation. Order of the fluent calls doesn't matter, and
+  `allowedOriginPatterns("*")` is covered too. Java and Kotlin.
+
 ## [0.1.1]
 
 ### Added
@@ -24,6 +36,7 @@
 - 100% static PSI analysis, Java and Kotlin, no network calls, no
   telemetry. Free.
 
-[Unreleased]: https://github.com/GapHunterLabs/cors-policy-companion/compare/0.1.1...HEAD
+[Unreleased]: https://github.com/GapHunterLabs/cors-policy-companion/compare/0.2.0...HEAD
+[0.2.0]: https://github.com/GapHunterLabs/cors-policy-companion/compare/0.1.1...0.2.0
 [0.1.1]: https://github.com/GapHunterLabs/cors-policy-companion/compare/0.1.0...0.1.1
 [0.1.0]: https://github.com/GapHunterLabs/cors-policy-companion/commits/0.1.0
