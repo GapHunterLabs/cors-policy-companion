@@ -11,13 +11,19 @@
         origin combined with credentials, so requests silently fail (or,
         worse, the intent behind the annotation is misunderstood
         entirely).</p>
-        <p><b>100% static PSI analysis</b> -- matches the annotation by
-        simple name only, works whether the real Spring jar is on the
-        classpath or not. Java and Kotlin.</p>
-        <p>Stated honestly: v0.1 only covers the declarative
-        <code>@CrossOrigin</code> annotation, not a programmatic
-        <code>CorsConfigurationSource</code>/<code>CorsRegistry</code>
-        setup built across multiple statements.</p>
+        <p>Also covers the programmatic <code>WebMvcConfigurer</code>
+        registration -- <code>registry.addMapping(...)
+        .allowedOrigins("*").allowCredentials(true)</code> -- as a
+        single-statement fluent chain, regardless of call order.</p>
+        <p><b>100% static PSI analysis</b> -- matches by simple name
+        only, works whether the real Spring jar is on the classpath or
+        not. Java and Kotlin.</p>
+        <p>Stated honestly: does not cover a
+        <code>CorsConfigurationSource</code>/
+        <code>UrlBasedCorsConfigurationSource</code> setup where the
+        wildcard origin and the credentials flag are set on separate
+        statements against a <code>CorsConfiguration</code> object
+        built up over multiple lines.</p>
         <p>Free. No license nags, no telemetry, no network calls.</p>
     ]]></description>
 
