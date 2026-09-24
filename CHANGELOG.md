@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+## [0.2.1]
+
+### Fixed
+
+- Marketplace listing (`plugin.xml`) still said "v0.1 only covers the
+  declarative `@CrossOrigin` annotation, not a programmatic
+  `CorsConfigurationSource`/`CorsRegistry` setup" -- stale since 0.2.0
+  added exactly that (the `WebMvcConfigurer` fluent-chain detector).
+  README already had the correct scope text; `plugin.xml` now matches.
+
 ## [0.2.0]
 
 ### Added
@@ -36,7 +46,8 @@
 - 100% static PSI analysis, Java and Kotlin, no network calls, no
   telemetry. Free.
 
-[Unreleased]: https://github.com/GapHunterLabs/cors-policy-companion/compare/0.2.0...HEAD
+[Unreleased]: https://github.com/GapHunterLabs/cors-policy-companion/compare/0.2.1...HEAD
+[0.2.1]: https://github.com/GapHunterLabs/cors-policy-companion/compare/0.2.0...0.2.1
 [0.2.0]: https://github.com/GapHunterLabs/cors-policy-companion/compare/0.1.1...0.2.0
 [0.1.1]: https://github.com/GapHunterLabs/cors-policy-companion/compare/0.1.0...0.1.1
 [0.1.0]: https://github.com/GapHunterLabs/cors-policy-companion/commits/0.1.0
