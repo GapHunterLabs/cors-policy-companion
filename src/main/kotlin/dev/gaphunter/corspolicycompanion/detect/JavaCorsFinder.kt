@@ -7,6 +7,8 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiModifierListOwner
 import dev.gaphunter.corspolicycompanion.model.CorsHit
+import dev.gaphunter.corspolicycompanion.model.CorsHitKind
+import dev.gaphunter.corspolicycompanion.model.hasStarElement
 
 /**
  * Finds Java `@CrossOrigin(origins = "*", allowCredentials = "true")`
@@ -23,23 +25,27 @@ object JavaCorsFinder {
         file.accept(object : JavaRecursiveElementWalkingVisitor() {
             override fun visitClass(aClass: PsiClass) {
                 super.visitClass(aClass)
-                findRiskyAnnotation(aClass)?.let { hits += CorsHit(it) }
+                findRiskyAnnotation(aClass)?.let { hits += it }
             }
 
             override fun visitMethod(method: PsiMethod) {
                 super.visitMethod(method)
-                findRiskyAnnotation(method)?.let { hits += CorsHit(it) }
+                findRiskyAnnotation(method)?.let { hits += it }
             }
         })
         return hits
     }
 
-    private fun findRiskyAnnotation(owner: PsiModifierListOwner): PsiAnnotation? {
+    private fun findRiskyAnnotation(owner: PsiModifierListOwner): CorsHit? {
         for (annotation in owner.modifierList?.annotations.orEmpty()) {
             if (annotation.nameReferenceElement?.referenceName != "CrossOrigin") continue
-            val originsText = annotation.findAttributeValue("origins")?.text ?: continue
-            val credentialsText = annotation.findAttributeValue("allowCredentials")?.text ?: continue
-            if (originsText.contains("*") && credentialsText.contains("true")) return annotation
+            val credentialsText = annotation.findDeclaredAttributeValue("allowCredentials")?.text ?: continue
+            if (!credentialsText.contains("true")) continue
+            // `value` is the alias of `origins`; only a literal "*" counts (not "https://*.example.com")
+            val originsText = (annotation.findDeclaredAttributeValue("origins") ?: annotation.findDeclaredAttributeValue("value"))?.text
+            if (originsText != null && hasStarElement(originsText)) return CorsHit(annotation, CorsHitKind.WILDCARD_ORIGIN)
+            val patternsText = annotation.findDeclaredAttributeValue("originPatterns")?.text
+            if (patternsText != null && hasStarElement(patternsText)) return CorsHit(annotation, CorsHitKind.WILDCARD_PATTERN)
         }
         return null
     }

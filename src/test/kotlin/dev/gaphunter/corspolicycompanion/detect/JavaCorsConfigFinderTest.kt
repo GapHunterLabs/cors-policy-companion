@@ -1,6 +1,8 @@
 package dev.gaphunter.corspolicycompanion.detect
 
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import dev.gaphunter.corspolicycompanion.model.CorsHit
+import dev.gaphunter.corspolicycompanion.model.CorsHitKind
 
 class JavaCorsConfigFinderTest : BasePlatformTestCase() {
 
@@ -43,7 +45,8 @@ class JavaCorsConfigFinderTest : BasePlatformTestCase() {
             }
             """.trimIndent(),
         )
-        assertEquals(1, JavaCorsConfigFinder.findAll(file).size)
+        // Regression (2026-10-01): reported, but as what it is -- every origin echoed back, not "browsers reject it"
+        assertEquals(listOf(CorsHitKind.WILDCARD_PATTERN), JavaCorsConfigFinder.findAll(file).map { it.kind })
     }
 
     fun `test a specific origin with credentials is not flagged`() {
@@ -102,4 +105,20 @@ class JavaCorsConfigFinderTest : BasePlatformTestCase() {
         )
         assertTrue(JavaCorsConfigFinder.findAll(file).isEmpty())
     }
+
+    fun `test an origin with a star inside a domain is not the wildcard`() {
+        val file = myFixture.configureByText(
+            "WebConfig.java",
+            """
+            class WebConfig {
+                void configureCors(CorsRegistry registry) {
+                    registry.addMapping("/**").allowedOrigins("https://*.example.com").allowCredentials(true);
+                    registry.addMapping("/api/**").allowedOriginPatterns("https://*.example.com").allowCredentials(true);
+                }
+            }
+            """.trimIndent(),
+        )
+        assertEquals(emptyList<CorsHitKind>(), JavaCorsConfigFinder.findAll(file).map { it.kind })
+    }
+
 }

@@ -10,6 +10,7 @@ import dev.gaphunter.corspolicycompanion.detect.JavaCorsFinder
 import dev.gaphunter.corspolicycompanion.detect.KotlinCorsConfigFinder
 import dev.gaphunter.corspolicycompanion.detect.KotlinCorsFinder
 import dev.gaphunter.corspolicycompanion.model.CorsHit
+import dev.gaphunter.corspolicycompanion.model.CorsHitKind
 import dev.gaphunter.corspolicycompanion.review.ReviewPrompt
 
 /**
@@ -47,7 +48,12 @@ class CorsPolicyLineMarkerProvider : LineMarkerProviderDescriptor(), DumbAware {
     }
 
     private fun buildMarker(leaf: PsiElement, hit: CorsHit): LineMarkerInfo<PsiElement> {
-        val tooltip = "This CORS configuration is invalid per the CORS spec -- browsers reject a wildcard origin combined with credentials, so requests silently fail"
+        val tooltip = when (hit.kind) {
+            CorsHitKind.WILDCARD_ORIGIN ->
+                "This CORS configuration is invalid per the CORS spec -- browsers reject a wildcard origin combined with credentials, so these requests fail"
+            CorsHitKind.WILDCARD_PATTERN ->
+                "A wildcard origin pattern with credentials echoes every origin back -- any website can make credentialed requests here and read the responses; list the allowed origins instead"
+        }
         return LineMarkerInfo(
             leaf,
             leaf.textRange,

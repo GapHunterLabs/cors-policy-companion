@@ -13,6 +13,16 @@ both forms Spring offers for the same footgun:
   `registry.addMapping(...).allowedOrigins("*").allowCredentials(true)`
   — regardless of the order the fluent calls appear in.
 
+Its sibling, the wildcard origin **pattern** with credentials
+(`allowedOriginPatterns("*")`, `originPatterns = "*"`), is reported too,
+with its own explanation: Spring allows it and the requests work,
+because every origin is echoed back — which means any website can make
+credentialed requests and read the responses. (Before 0.2.3 it got the
+"browsers reject it" message, which is false for patterns.) Only a
+literal `"*"` counts as the wildcard: an origin like
+`https://*.example.com` is not reported. The `value` alias of `origins`
+is checked too.
+
 ## Why it exists
 
 This specific combination is a well-known, spec-documented CORS

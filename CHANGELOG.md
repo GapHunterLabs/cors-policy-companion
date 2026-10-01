@@ -4,6 +4,22 @@
 
 ## [Unreleased]
 
+## [0.2.3]
+
+### Fixed
+
+- A wildcard origin **pattern** with credentials
+  (`allowedOriginPatterns("*")`) was explained as "invalid per the CORS
+  spec, browsers reject it" -- false: Spring allows it, the requests
+  work, and every origin is echoed back, so any website can make
+  credentialed requests and read the responses. It now has its own
+  warning saying exactly that; `@CrossOrigin(originPatterns = "*")` is
+  covered too.
+- A `*` inside an origin (`https://*.example.com`) was taken for the
+  wildcard; only a literal `"*"` is reported now.
+- `@CrossOrigin(value = "*", ...)` (the alias of `origins`) and Kotlin's
+  positional `@CrossOrigin("*", ...)` were not checked.
+
 ## [0.2.2]
 
 ### Fixed
@@ -53,7 +69,8 @@
 - 100% static PSI analysis, Java and Kotlin, no network calls, no
   telemetry. Free.
 
-[Unreleased]: https://github.com/GapHunterLabs/cors-policy-companion/compare/0.2.2...HEAD
+[Unreleased]: https://github.com/GapHunterLabs/cors-policy-companion/compare/0.2.3...HEAD
+[0.2.3]: https://github.com/GapHunterLabs/cors-policy-companion/compare/0.2.2...0.2.3
 [0.2.2]: https://github.com/GapHunterLabs/cors-policy-companion/compare/0.2.1...0.2.2
 [0.2.1]: https://github.com/GapHunterLabs/cors-policy-companion/compare/0.2.0...0.2.1
 [0.2.0]: https://github.com/GapHunterLabs/cors-policy-companion/compare/0.1.1...0.2.0

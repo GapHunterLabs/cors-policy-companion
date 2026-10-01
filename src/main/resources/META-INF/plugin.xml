@@ -15,6 +15,13 @@
         registration -- <code>registry.addMapping(...)
         .allowedOrigins("*").allowCredentials(true)</code> -- as a
         single-statement fluent chain, regardless of call order.</p>
+        <p>The wildcard origin <i>pattern</i> with credentials
+        (<code>allowedOriginPatterns("*")</code>,
+        <code>originPatterns = "*"</code>) gets its own warning: Spring
+        allows it and the requests work, because every origin is echoed
+        back -- so any website can make credentialed requests and read
+        the responses. Only a literal <code>"*"</code> counts as the
+        wildcard (<code>https://*.example.com</code> is not reported).</p>
         <p><b>100% static PSI analysis</b> -- matches by simple name
         only, works whether the real Spring jar is on the classpath or
         not. Java and Kotlin.</p>

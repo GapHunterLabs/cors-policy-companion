@@ -1,6 +1,8 @@
 package dev.gaphunter.corspolicycompanion.detect
 
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import dev.gaphunter.corspolicycompanion.model.CorsHit
+import dev.gaphunter.corspolicycompanion.model.CorsHitKind
 
 class KotlinCorsConfigFinderTest : BasePlatformTestCase() {
 
@@ -88,4 +90,19 @@ class KotlinCorsConfigFinderTest : BasePlatformTestCase() {
         )
         assertTrue(KotlinCorsConfigFinder.findAll(file).isEmpty())
     }
+
+    fun `test allowedOriginPatterns wildcard plus credentials is reported as such`() {
+        val file = myFixture.configureByText(
+            "WebConfig.kt",
+            """
+            class WebConfig {
+                fun configureCors(registry: CorsRegistry) {
+                    registry.addMapping("/**").allowedOriginPatterns("*").allowCredentials(true)
+                }
+            }
+            """.trimIndent(),
+        )
+        assertEquals(listOf(CorsHitKind.WILDCARD_PATTERN), KotlinCorsConfigFinder.findAll(file).map { it.kind })
+    }
+
 }

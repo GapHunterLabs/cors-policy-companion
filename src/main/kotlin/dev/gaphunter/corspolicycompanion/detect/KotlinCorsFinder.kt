@@ -2,6 +2,8 @@ package dev.gaphunter.corspolicycompanion.detect
 
 import com.intellij.psi.PsiFile
 import dev.gaphunter.corspolicycompanion.model.CorsHit
+import dev.gaphunter.corspolicycompanion.model.CorsHitKind
+import dev.gaphunter.corspolicycompanion.model.hasStarElement
 import org.jetbrains.kotlin.psi.KtAnnotated
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtClassOrObject
@@ -18,23 +20,28 @@ object KotlinCorsFinder {
         file.accept(object : KtTreeVisitorVoid() {
             override fun visitClassOrObject(classOrObject: KtClassOrObject) {
                 super.visitClassOrObject(classOrObject)
-                findRiskyAnnotation(classOrObject)?.let { hits += CorsHit(it) }
+                findRiskyAnnotation(classOrObject)?.let { hits += it }
             }
 
             override fun visitNamedFunction(function: KtNamedFunction) {
                 super.visitNamedFunction(function)
-                findRiskyAnnotation(function)?.let { hits += CorsHit(it) }
+                findRiskyAnnotation(function)?.let { hits += it }
             }
         })
         return hits
     }
 
-    private fun findRiskyAnnotation(owner: KtAnnotated): KtAnnotationEntry? {
+    private fun findRiskyAnnotation(owner: KtAnnotated): CorsHit? {
         for (entry in owner.annotationEntries) {
             if (entry.shortName?.asString() != "CrossOrigin") continue
-            val originsText = argumentText(entry, "origins") ?: continue
             val credentialsText = argumentText(entry, "allowCredentials") ?: continue
-            if (originsText.contains("*") && credentialsText.contains("true")) return entry
+            if (!credentialsText.contains("true")) continue
+            // `value` (named or the first positional argument) is the alias of `origins`
+            val originsText = argumentText(entry, "origins") ?: argumentText(entry, "value")
+                ?: entry.valueArguments.firstOrNull { it.getArgumentName() == null }?.getArgumentExpression()?.text
+            if (originsText != null && hasStarElement(originsText)) return CorsHit(entry, CorsHitKind.WILDCARD_ORIGIN)
+            val patternsText = argumentText(entry, "originPatterns")
+            if (patternsText != null && hasStarElement(patternsText)) return CorsHit(entry, CorsHitKind.WILDCARD_PATTERN)
         }
         return null
     }
