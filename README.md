@@ -23,6 +23,12 @@ literal `"*"` counts as the wildcard: an origin like
 `https://*.example.com` is not reported. The `value` alias of `origins`
 is checked too.
 
+![CORS Policy Companion: catches the @CrossOrigin settings that silently break or expose your API](docs/media/hero.gif)
+
+Each feature on its own:
+[Wildcard origin](docs/media/01-wildcard-origin.gif) ·
+[Wildcard pattern](docs/media/02-wildcard-pattern.gif)
+
 ## Why it exists
 
 This specific combination is a well-known, spec-documented CORS
